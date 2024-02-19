@@ -47,4 +47,4 @@ jobs:
     
     steps:
     - name: test-deploy
-      run: echo "test-deploy"
+      run: echo "test-deploy.."
