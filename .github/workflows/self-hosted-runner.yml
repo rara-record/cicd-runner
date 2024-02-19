@@ -61,12 +61,14 @@ jobs:
       shell: bash
         
 
-
   deploy:
     needs: build 
     name: CD
     runs-on: [self-hosted, test-runner]
     
     steps:
-    - name: test-deploy
-      run: echo "test-deploy.."
+    - name: S3에서 빌드 결과물 다운로드
+      run: aws s3 cp s3://${{ env.S3_BUCKET_NAME }}/${{ env.PROJECT_NAME }}.zip ./${{ env.PROJECT_NAME }}.zip
+    
+    - name: 압축 해제
+      run: unzip -qq ./${{ env.PROJECT_NAME }}.zip -d ./
