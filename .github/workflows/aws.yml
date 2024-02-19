@@ -1,4 +1,4 @@
-name: AWS ECR+EC2 CI/CD
+name: TEST CI/CD
 
 on:
   push:
@@ -43,7 +43,7 @@ jobs:
   deploy:
     needs: build 
     name: CD
-    runs-on: self-hosted
+    runs-on: [self-hosted, test-runner]
     
     steps:
     - name: test-deploy
