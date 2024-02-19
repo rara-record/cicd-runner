@@ -43,7 +43,7 @@ jobs:
   deploy:
     needs: build 
     name: CD
-    runs-on: [self-hosted, label-c]
+    runs-on: self-hosted
     
     steps:
     - name: test-deploy
