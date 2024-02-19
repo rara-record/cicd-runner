@@ -1,4 +1,4 @@
-name: TEST CI/CD ver1
+name: TEST CI/CD v1
 
 on:
   push:
