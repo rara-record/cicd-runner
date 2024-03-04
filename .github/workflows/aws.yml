@@ -1,50 +1,27 @@
-name: TEST CI/CD
-
-on:
-  push:
-    branches:
-      - main
-
-# env:
-#   ECR_REGISTRY: ${{ secrets.ECR_REGISTRY_URI }}
-#   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
-#   IMAGE_TAG: ${{ github.sha }}
-
-
-jobs:  
-  build: 
-    name: CI
+name: build_cache_test
+on: push
+jobs:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout 
-      uses: actions/checkout@v2 
-
-    - name: test-build
-      run: echo "test-build"
-
-    # - name: Configure AWS credentials 
-    #   uses: aws-actions/configure-aws-credentials@v1 
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: ap-northeast-2
-
-    # - name: Login to Amazon ECR 
-    #   id: login-ecr
-    #   uses: aws-actions/amazon-ecr-login@v1 
-
-    # - name: Build, tag, and push image to Amazon ECR
-    #   id: build-image
-    #   run: |
-    #     docker build -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
-    #     docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-
-  deploy:
-    needs: build 
-    name: CD
-    runs-on: [self-hosted, test-runner]
-    
-    steps:
-    - name: test-deploy
-      run: echo "test-deploy.."
+      - uses: actions/checkout@v3
+      - name: Restore cached Next.js
+        id: cache-nextjs-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - name: Store Next.js cache
+        id: cache-nextjs-save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
